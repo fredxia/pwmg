@@ -29,6 +29,8 @@ You can install it with the `pip` command
 # python3 -m pip install pwmg
 ```
 
+Github link: https://github.com/fredxia/pwmg
+
 ## Usage
 
 The default file to store encrypted passwords is `/.pwmg_db`. There is a
