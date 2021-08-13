@@ -10,9 +10,10 @@ A master secrete key is used to encrypt and decrypt password entries.
 
 The algorithm for encryption is XTEA, with 64 rounds of computation.
 See https://en.wikipedia.org/wiki/XTEA for more information. Each entry
-is padded to 256 bytes, prepended with randomly generated printable
-characters. A '\0' is inserted to mark the start of the password entry.
-The entire string is then encrypted, 8-byte each, with CBC.
+is padded to 256 bytes, prepended and appended with randomly generated
+printable characters. A '\0' is inserted to mark the start and/or end
+of the password entry. The entire string is then encrypted, 8-byte
+per block, with CBC.
 
 The master secrete key must be more than 8 characters long. It is advised,
 but not enforced, to use mixed characters, special characters, and digits.

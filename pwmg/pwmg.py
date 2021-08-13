@@ -3,6 +3,8 @@
 # Copyright @2021 by Fred Xia, fredxia2011@gmail.com
 # MIT License: https://opensource.org/licenses/MIT
 #
+# Github: https://github.com/fredxia/pwmg
+#
 import os
 import sys
 import datetime
@@ -14,25 +16,35 @@ import struct
 import argparse
 import getpass
 import csv
+import tempfile
 
 block_sz = 256
 
-# Pad password entry to 256 bytes with random characters
+# Pad password entry to 256 bytes with random characters. Padding string
+# is randomly split into two pieces. One to prepend and one to append to
+# the value. \0 is used to delimit padding and value
 def pad_str(value):
     bv = bytes(value, "utf8")
     m = len(bv) % block_sz
     if m == 0:
         return bv
-    pad = block_sz - m - 1
-    bv2 = bytes([ ord(random.choice(string.printable)) for _ in range(pad) ])
-    bv2 += bytes([0])
-    bv2 += bv
+    pad_len = block_sz - m - 2
+    p = [ ord(random.choice(string.printable)) for _ in range(pad_len) ]
+    split = random.randint(0, pad_len)
+    bv2 = bytes(p[:split]) + bytes([0]) + bv
+    if split < pad_len:
+        bv2 += bytes([0]) + bytes(p[split:])
     assert len(bv2) % block_sz == 0
     return bv2
 
 def unpad_str(value):
     idx = value.find("\x00")
-    return value if idx < 0 else value[(idx+1):]
+    if idx < 0:
+        return value
+    idx2 = value.rfind("\x00")
+    if idx2 == idx:
+        return value[(idx+1):]
+    return value[(idx+1):idx2]
 
 def print_err(msg):
     print(msg, file=sys.stderr)
@@ -113,7 +125,7 @@ def default_password_file():
     return "%s/.pwmg_db" % os.environ["HOME"]
 
 def first_line():
-    return "# password file created %s" % str(datetime.date.today())
+    return "# version 0.0.5 file created %s" % str(datetime.date.today())
 
 def load_passwords(filename, key):
     fh = open(filename, "r")
@@ -148,18 +160,25 @@ def load_passwords(filename, key):
     return result
 
 def save_passwords(filename, pws, key):
-    fh = open(filename, "w")
-    if not fh:
-        print_err("Cannot open passowrd file %s" % filename)
+    temp = tempfile.NamedTemporaryFile(mode="w", encoding="utf8", delete=False)
+    if not temp:
+        print_err("Cannot open temp password file")
         exit(1)
-    print(first_line(), file=fh)
+    print(first_line(), file=temp.file)
     for site in pws:
         row = pws[site]
         assert len(row) == 4
         v = "\t".join(row)
         dv = xtea_encipher(xtea_rounds, v, key)
-        print(dv, file=fh)
-    fh.close()
+        assert(dv)
+        print(dv, file=temp.file)
+    temp.file.close()
+    if os.path.exists(filename):
+        bk = filename + ".back"
+        if os.path.exists(bk):
+            os.remove(bk)
+        os.rename(filename, bk)
+    os.rename(temp.name, filename)
     return len(pws)
 
 def pretty_print(pws):
