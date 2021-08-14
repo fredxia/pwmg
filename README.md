@@ -4,7 +4,7 @@ A password management tool
 `pwmg` is a standalone python3 script to manage a collection of password
 entries. Each entry consists of a site name, an user account name,
 and the password. `pwmg` will add a timestamp when it encrypts and stores
-the password entry.
+the password entry. The encrypted entries are stored in a local file.
 
 A master secrete key is used to encrypt and decrypt password entries.
 
@@ -34,11 +34,11 @@ Github link: https://github.com/fredxia/pwmg
 
 ## Usage
 
-The default file to store encrypted passwords is `/.pwmg_db`. There is a
+The default file to store encrypted passwords is `~/.pwmg_db`. There is a
 command line option `-f` to use a different file.
 
-To avoid potential leak of passwords in the `.history` file master secrete key
-or password is only typed in at prompt, not with command line option.
+To avoid potential leak of passwords in the shell `.history` file master secrete
+key or password is only typed in at prompt, not with command line option.
 
 Below is an example to save a password. Notice the master secrete key is
 not printed to the terminal (per Python3's `getpass` module).
@@ -74,6 +74,9 @@ default to be TAB character (can be changed with `-d` option).
 Each functionality is a sub command. All sub commands can be listed by the
 help option. Without any command line sub command specified the default is
 "show" command.
+
+By convention arguments in square brackets are optional in the following "-h"
+output.
 
 ```text
 % pwmg -h
