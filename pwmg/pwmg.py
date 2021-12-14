@@ -17,6 +17,7 @@ import argparse
 import getpass
 import csv
 import tempfile
+import collections
 
 block_sz = 256
 
@@ -254,17 +255,16 @@ def init_parser():
 def show_cmd(args):
     pws = load_passwords(args.file, args.pw)
     if not args.name:
-        result = pws
-    else:
-        result = {}
-        for k, v in pws.items():
-            if args.name in k:
-                result[args.name] = v
-            elif args.name in v[1] or args.name in v[3]:
-                result[args.name] = v
+        pretty_print(pws)
+        return
+    result = {}
+    for k, v in pws.items():
+        if args.name in k:
+            result[k] = v
+        elif args.name in v[1] or args.name in v[3]:
+            result[k] = v
     if not result:
         print("No match found")
-        return
     pretty_print(result)
 
 def rm_cmd(args):
