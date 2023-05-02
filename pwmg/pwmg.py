@@ -34,7 +34,9 @@ def pad_str(value):
     split = random.randint(0, pad_len)
     bv2 = bytes(p[:split]) + bytes([0]) + bv
     if split < pad_len:
-        bv2 += bytes([0]) + bytes(p[split:])
+        bv2 = bv2 + bytes([0]) + bytes(p[split:])
+    else:
+        bv2 = bv2 + bytes([0])
     assert len(bv2) % block_sz == 0
     return bv2
 
