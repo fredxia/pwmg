@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pwmg",
-    version="0.0.5",
+    version="0.0.7",
     author="Fred Xia",
     author_email="fredxia2011@gmail.com",
     description="A password management tool",
